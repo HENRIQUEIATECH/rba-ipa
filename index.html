@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <title>Rádio Brasil Artes</title>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#084424">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="RBA">
+<link rel="apple-touch-icon" href="icone-512.png">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; background-color: #f8f4dc; color: #084424; display: flex; flex-direction: column; min-height: 100vh; overflow: hidden; }
+        header { background-color: #084424; padding: 50px 20px 20px; text-align: center; }
+        header h1 { color: #fcd404; font-size: 22px; margin-bottom: 4px; }
+        .logo-pequena { height: 24px; margin: 0 auto 5px; display: block; cursor: pointer; }
+        .btn-home { color: #ffffff; font-size: 16px; cursor: pointer; }
+        main { flex: 1; padding: 20px; text-align: center; display: flex; flex-direction: column; overflow: hidden; }
+        section { display: none; flex: 1; flex-direction: column; }
+        section.ativa { display: flex; }
+        .slogan { font-style: italic; margin-bottom: 10px; font-size: 14px; }
+        .menu-links a { color: #084424; text-decoration: none; font-size: 18px; padding: 12px; display: block; cursor: pointer; border-bottom: 1px solid rgba(8,68,36,0.05); }
+        .controls { display: flex; justify-content: center; gap: 25px; margin: 15px 0; }
+        .btn-ctrl { cursor: pointer; font-size: 22px; font-weight: bold; background: none; border: none; color: #084424; padding: 10px; }
+        #status { font-size: 14px; color: #707c54; margin-bottom: 10px; height: 20px; font-weight: bold; }
+        iframe { width: 100%; flex: 1; border: none; background: transparent; }
+        footer { background-color: #084424; padding: 20px; text-align: center; }
+        .f1, .f2 { color: #ffffff; font-size: 14px; }
+        .f2 { color: #fcd404; }
+        .f3 { color: #707c54; font-size: 12px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Rádio Brasil Artes</h1>
+        <div onclick="irParaHome()">
+            <img src="logo.png" alt="Logo RBA" class="logo-pequena">
+            <span class="btn-home">Página Principal</span>
+        </div>
+    </header>
+
+    <main>
+        <div id="status"></div>
+
+        <section id="home" class="ativa">
+            <p class="slogan">Onde o tempo faz uma pausa para a arte ecoar.</p>
+            <p class="frase-coracao">Nossa História não é feita apenas de anos, mas de cada nota que tocou o seu coração.</p>
+            <div class="menu-links">
+                <a onclick="abrirPlayer('classicos')">Clássicos Musicais</a>
+                <a onclick="abrirPlayer('sertanejo')">Sertanejo Raiz</a>
+                <a onclick="abrirPlayer('bossa')">Bossa Nova</a>
+                <a onclick="abrirPlayer('podcast')">PodCast & Saúde</a>
+                <a onclick="abrirPlayer('a_voz_do_brasil')">A Voz do Brasil</a>
+                <a onclick="abrirPlayer('historia')"><b>Nossa História</b></a>
+            </div>
+        </section>
+
+        <section id="player-view">
+            <h2 id="titulo-cat" style="font-weight: bold; text-transform: uppercase;"></h2>
+            <div class="controls">
+                <button class="btn-ctrl" onclick="prev()"> << </button>
+                <button class="btn-ctrl" id="playBtn" onclick="togglePlay()"> [ PLAY ] </button>
+                <button class="btn-ctrl" onclick="next()"> >> </button>
+            </div>
+            <iframe id="nav-audio"></iframe>
+        </section>
+
+        <audio id="playerAudio"></audio>
+    </main>
+
+    <footer>
+        <div class="f1">RBA 1.0</div>
+        <div class="f2">Alta Tecnologia | High Tech</div>
+        <div class="f3">© 2026 - Todos os Direitos Reservados</div>
+    </footer>
+
+    <script>
+        const audio = document.getElementById('playerAudio');
+        const iframe = document.getElementById('nav-audio');
+        const statusDiv = document.getElementById('status');
+        const playBtn = document.getElementById('playBtn');
+
+        // Recebe o comando do Iframe para tocar a música
+        window.addEventListener('message', function(event) {
+            if (event.data.tipo === 'tocar') {
+                audio.src = event.data.url;
+                audio.play();
+                statusDiv.innerText = "Tocando: " + event.data.nome;
+                playBtn.innerText = "[ PAUSE ]";
+            }
+        });
+
+        function abrirPlayer(cat) {
+            document.getElementById('home').classList.remove('ativa');
+            document.getElementById('player-view').classList.add('ativa');
+            document.getElementById('titulo-cat').innerText = cat;
+            // Carrega o arquivo da lista sem sair do App
+            iframe.src = cat + ".html";
+        }
+
+        function irParaHome() {
+            audio.pause();
+            audio.src = "";
+            statusDiv.innerText = "";
+            document.getElementById('player-view').classList.remove('ativa');
+            document.getElementById('home').classList.add('ativa');
+        }
+
+        function togglePlay() {
+            if (audio.paused) { audio.play(); playBtn.innerText = "[ PAUSE ]"; }
+            else { audio.pause(); playBtn.innerText = "[ PLAY ]"; }
+        }
+
+        // Comandos enviados para o Iframe decidir qual música é a próxima
+        function next() { iframe.contentWindow.postMessage('next', '*'); }
+        function prev() { iframe.contentWindow.postMessage('prev', '*'); }
+        
+        // Passagem automática
+        audio.onended = next;
+    </script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+            .then(() => console.log("Proteção Offline Ativada!"));
+    }
+</script>
+</body>
+</html>
