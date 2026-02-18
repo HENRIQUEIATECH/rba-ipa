@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RBA - Offline</title>
+    <style>
+        body { 
+            background-color: #084424; color: #fcd404; font-family: sans-serif; 
+            margin: 0; overflow: hidden; display: flex; flex-direction: column; align-items: center; 
+        }
+        #game-container { position: relative; width: 100vw; height: 60vh; background: rgba(0,0,0,0.2); touch-action: none; }
+        .player { position: absolute; bottom: 20px; width: 60px; height: 60px; transition: left 0.1s ease-out; }
+        .note { position: absolute; font-size: 24px; top: -30px; }
+        .placar { font-size: 20px; margin-top: 10px; font-weight: bold; }
+        .instrucoes { padding: 20px; text-align: center; }
+        #btn-recarregar { background:#fcd404; border:none; padding:12px 25px; border-radius:8px; font-weight:bold; cursor:pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="instrucoes">
+        <h2 style="margin: 5px;">Você está Offline</h2>
+        <p style="color: white; margin: 5px;">Enquanto a conexão não volta, pegue as notas!</p>
+        <div class="placar">Pontos: <span id="score">0</span></div>
+    </div>
+
+    <div id="game-container">
+        <img src="icone-app.png" id="player" class="player" style="left: 50%;">
+    </div>
+
+    <button id="btn-recarregar" onclick="window.location.reload()">RECONECTAR</button>
+
+    <script>
+        const container = document.getElementById('game-container');
+        const player = document.getElementById('player');
+        const scoreElement = document.getElementById('score');
+        let score = 0;
+
+        // Mover jogador com o dedo/mouse
+        container.addEventListener('touchmove', (e) => {
+            let x = e.touches[0].clientX - 30;
+            if(x > 0 && x < window.innerWidth - 60) player.style.left = x + 'px';
+        });
+
+        container.addEventListener('mousemove', (e) => {
+            let x = e.clientX - 30;
+            if(x > 0 && x < window.innerWidth - 60) player.style.left = x + 'px';
+        });
+
+        function createNote() {
+            const note = document.createElement('div');
+            note.className = 'note';
+            note.innerHTML = ['♫', '♪', '♯', '♬'][Math.floor(Math.random() * 4)];
+            note.style.left = Math.random() * (window.innerWidth - 30) + 'px';
+            container.appendChild(note);
+
+            let top = -30;
+            const fall = setInterval(() => {
+                top += 4;
+                note.style.top = top + 'px';
+
+                // Detectar colisão
+                const pRect = player.getBoundingClientRect();
+                const nRect = note.getBoundingClientRect();
+
+                if (nRect.bottom > pRect.top && nRect.left < pRect.right && nRect.right > pRect.left) {
+                    score++;
+                    scoreElement.innerText = score;
+                    note.remove();
+                    clearInterval(fall);
+                }
+
+                if (top > window.innerHeight) {
+                    note.remove();
+                    clearInterval(fall);
+                }
+            }, 20);
+        }
+
+        // Criar notas a cada 1 segundo
+        setInterval(createNote, 1000);
+    </script>
+</body>
+</html>
