@@ -53,13 +53,13 @@
             <p class="slogan">Onde o tempo faz uma pausa para a arte ecoar.</p>
             <p class="frase-coracao">Nossa História não é feita apenas de anos, mas de cada nota que tocou o seu coração.</p>
             <div class="menu-links">
-                <a onclick="abrirPlayer('classicos')">Clássicos Musicais</a>
-                <a onclick="abrirPlayer('sertanejo')">Sertanejo Raiz</a>
-                <a onclick="abrirPlayer('bossa')">Bossa Nova</a>
-                <a onclick="abrirPlayer('podcast')">PodCast & Saúde</a>
-                <a onclick="abrirPlayer('a_voz_do_brasil')">A Voz do Brasil</a>
-                <a onclick="abrirPlayer('historia')"><b>Nossa História</b></a>
-            </div>
+	    <a onclick="abrirPlayer('classicos', 'Clássicos Musicais')">Clássicos Musicais</a>
+	    <a onclick="abrirPlayer('sertanejo', 'Sertanejo Raiz')">Sertanejo Raiz</a>
+	    <a onclick="abrirPlayer('bossa', 'Bossa Nova')">Bossa Nova</a>
+	    <a onclick="abrirPlayer('podcast', 'PodCast & Saúde')">PodCast & Saúde</a>
+	    <a onclick="abrirPlayer('a_voz_do_brasil', 'A Voz do Brasil')">A Voz do Brasil</a>
+	    <a onclick="abrirPlayer('historia', 'Nossa História')"><b>Nossa História</b></a>
+	</div>
         </section>
 
         <section id="player-view">
@@ -82,54 +82,52 @@
     </footer>
 
     <script>
-        const audio = document.getElementById('playerAudio');
-        const iframe = document.getElementById('nav-audio');
-        const statusDiv = document.getElementById('status');
-        const playBtn = document.getElementById('playBtn');
+    const audio = document.getElementById('playerAudio');
+    const iframe = document.getElementById('nav-audio');
+    const statusDiv = document.getElementById('status');
+    const playBtn = document.getElementById('playBtn');
 
-        // Recebe o comando do Iframe para tocar a música
-        window.addEventListener('message', function(event) {
-            if (event.data.tipo === 'tocar') {
-                audio.src = event.data.url;
-                audio.play();
-                statusDiv.innerText = "Tocando: " + event.data.nome;
-                playBtn.innerText = "[ PAUSE ]";
-            }
-        });
+    // A DIREÇÃO DO SEU SERVIDOR
+    const BASE_URL = "https://iartium.com/iphoneapp/";
 
-        function abrirPlayer(cat) {
-            document.getElementById('home').classList.remove('ativa');
-            document.getElementById('player-view').classList.add('ativa');
-            document.getElementById('titulo-cat').innerText = cat;
-            // Carrega o arquivo da lista sem sair do App
-            iframe.src = cat + ".html";
+    window.addEventListener('message', function(event) {
+        if (event.data.tipo === 'tocar') {
+            audio.src = event.data.url;
+            audio.play();
+            statusDiv.innerText = "Tocando: " + event.data.nome;
+            playBtn.innerText = "[ PAUSE ]";
         }
+    });
 
-        function irParaHome() {
-            audio.pause();
-            audio.src = "";
-            statusDiv.innerText = "";
-            document.getElementById('player-view').classList.remove('ativa');
-            document.getElementById('home').classList.add('ativa');
-        }
-
-        function togglePlay() {
-            if (audio.paused) { audio.play(); playBtn.innerText = "[ PAUSE ]"; }
-            else { audio.pause(); playBtn.innerText = "[ PLAY ]"; }
-        }
-
-        // Comandos enviados para o Iframe decidir qual música é a próxima
-        function next() { iframe.contentWindow.postMessage('next', '*'); }
-        function prev() { iframe.contentWindow.postMessage('prev', '*'); }
+    function abrirPlayer(slug, tituloAmigavel) {
+        document.getElementById('home').classList.remove('ativa');
+        document.getElementById('player-view').classList.add('ativa');
         
-        // Passagem automática
-        audio.onended = next;
-    </script>
-    <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js')
-            .then(() => console.log("Proteção Offline Ativada!"));
+        // Exibe o nome bonito no topo
+        document.getElementById('titulo-cat').innerText = tituloAmigavel;
+        
+        // BUSCA O LINK CERTO NO SEU SERVIDOR (HTTPS)
+        // Exemplo: https://iartium.com/iphoneapp/classicos.html
+        iframe.src = BASE_URL + slug + ".html";
     }
+
+    function irParaHome() {
+        audio.pause();
+        audio.src = "";
+        statusDiv.innerText = "";
+        document.getElementById('player-view').classList.remove('ativa');
+        document.getElementById('home').classList.add('ativa');
+    }
+
+    function togglePlay() {
+        if (audio.paused) { audio.play(); playBtn.innerText = "[ PAUSE ]"; }
+        else { audio.pause(); playBtn.innerText = "[ PLAY ]"; }
+    }
+
+    function next() { iframe.contentWindow.postMessage('next', '*'); }
+    function prev() { iframe.contentWindow.postMessage('prev', '*'); }
+    
+    audio.onended = next;
 </script>
 </body>
 </html>
