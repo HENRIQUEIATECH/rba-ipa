@@ -81,53 +81,6 @@
         <div class="f3">© 2026 - Todos os Direitos Reservados</div>
     </footer>
 
-    <script>
-    const audio = document.getElementById('playerAudio');
-    const iframe = document.getElementById('nav-audio');
-    const statusDiv = document.getElementById('status');
-    const playBtn = document.getElementById('playBtn');
-
-    // A DIREÇÃO DO SEU SERVIDOR
-    const BASE_URL = "https://iartium.com/iphoneapp/";
-
-    window.addEventListener('message', function(event) {
-        if (event.data.tipo === 'tocar') {
-            audio.src = event.data.url;
-            audio.play();
-            statusDiv.innerText = "Tocando: " + event.data.nome;
-            playBtn.innerText = "[ PAUSE ]";
-        }
-    });
-
-    function abrirPlayer(slug, tituloAmigavel) {
-        document.getElementById('home').classList.remove('ativa');
-        document.getElementById('player-view').classList.add('ativa');
-        
-        // Exibe o nome bonito no topo
-        document.getElementById('titulo-cat').innerText = tituloAmigavel;
-        
-        // BUSCA O LINK CERTO NO SEU SERVIDOR (HTTPS)
-        // Exemplo: https://iartium.com/iphoneapp/classicos.html
-        iframe.src = BASE_URL + slug + ".html";
-    }
-
-    function irParaHome() {
-        audio.pause();
-        audio.src = "";
-        statusDiv.innerText = "";
-        document.getElementById('player-view').classList.remove('ativa');
-        document.getElementById('home').classList.add('ativa');
-    }
-
-    function togglePlay() {
-        if (audio.paused) { audio.play(); playBtn.innerText = "[ PAUSE ]"; }
-        else { audio.pause(); playBtn.innerText = "[ PLAY ]"; }
-    }
-
-    function next() { iframe.contentWindow.postMessage('next', '*'); }
-    function prev() { iframe.contentWindow.postMessage('prev', '*'); }
-    
-    audio.onended = next;
-</script>
+   
 </body>
 </html>
